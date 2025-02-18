@@ -1,6 +1,6 @@
 run:
 	@echo "Running migration and starting app..."
-	goose up && go run .
+	goose up && go run ./internal/cmd/server/
 
 check:
 	@echo "Making requests..."

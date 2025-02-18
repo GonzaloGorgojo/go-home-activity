@@ -11,12 +11,14 @@ import (
 
 func main() {
 
-	dbI := database.InitDB()
-	defer dbI.Close()
+	db, err := database.InitDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
 	mux := http.NewServeMux()
-
-	routes.AddRoutes(mux, dbI)
+	routes.AddRoutes(mux, db)
 
 	s := &http.Server{
 		Addr:           ":8080",
@@ -27,5 +29,7 @@ func main() {
 	}
 
 	log.Println("Server running on port :8080")
-	log.Fatal(s.ListenAndServe())
+	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Server failed: %v", err)
+	}
 }
