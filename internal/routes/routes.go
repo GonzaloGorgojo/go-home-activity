@@ -9,4 +9,5 @@ import (
 func AddRoutes(mux *http.ServeMux, handler *users.UserHandler) {
 
 	mux.HandleFunc("GET /users", handler.GetAllUsers)
+	mux.HandleFunc("GET /user", handler.GetOneByEmail)
 }

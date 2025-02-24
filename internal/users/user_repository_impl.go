@@ -29,3 +29,14 @@ func (r *UserRepositoryImpl) GetAllUsers() ([]User, error) {
 	}
 	return users, nil
 }
+
+func (r *UserRepositoryImpl) GetOneByEmail(email string) (User, error) {
+	var u User
+	err := r.Db.QueryRow("SELECT * FROM users WHERE Email = ?", email).Scan(&u.ID, &u.Name, &u.Email, &u.Password, &u.Type)
+
+	if err != nil {
+		return User{}, err
+	}
+
+	return u, nil
+}
