@@ -1,18 +1,16 @@
-package handlers
+package users
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/gonzalogorgojo/go-home-activity/internal/services"
 )
 
 type UserHandler struct {
-	service *services.UserService
+	service *UserService
 }
 
-func NewUserHandler(service *services.UserService) *UserHandler {
+func NewUserHandler(service *UserService) *UserHandler {
 	return &UserHandler{service: service}
 }
 

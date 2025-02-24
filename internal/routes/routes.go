@@ -3,10 +3,10 @@ package routes
 import (
 	"net/http"
 
-	"github.com/gonzalogorgojo/go-home-activity/internal/handlers"
+	"github.com/gonzalogorgojo/go-home-activity/internal/users"
 )
 
-func AddRoutes(mux *http.ServeMux, handler *handlers.UserHandler) {
+func AddRoutes(mux *http.ServeMux, handler *users.UserHandler) {
 
 	mux.HandleFunc("GET /users", handler.GetAllUsers)
 }

@@ -6,10 +6,8 @@ import (
 	"time"
 
 	"github.com/gonzalogorgojo/go-home-activity/internal/database"
-	"github.com/gonzalogorgojo/go-home-activity/internal/handlers"
-	"github.com/gonzalogorgojo/go-home-activity/internal/repositories"
 	"github.com/gonzalogorgojo/go-home-activity/internal/routes"
-	"github.com/gonzalogorgojo/go-home-activity/internal/services"
+	"github.com/gonzalogorgojo/go-home-activity/internal/users"
 )
 
 func main() {
@@ -22,9 +20,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	userRepo := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
-	userHandler := handlers.NewUserHandler(userService)
+	userRepo := users.NewUserRepository(db)
+	userService := users.NewUserService(userRepo)
+	userHandler := users.NewUserHandler(userService)
 
 	routes.AddRoutes(mux, userHandler)
 
