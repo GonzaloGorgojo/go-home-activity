@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 )
 
 type UserHandler struct {
@@ -57,4 +59,23 @@ func (h *UserHandler) GetOneByEmail(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error encoding users response: %v", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var req models.CreateUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("Invalid Input error: %v", err)
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	user, err := h.service.CreateUser(req)
+	if err != nil {
+		log.Printf("Error creating user: %v", err)
+		http.Error(w, "Could not create user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(user)
 }
