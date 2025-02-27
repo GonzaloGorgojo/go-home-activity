@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
+	"github.com/gonzalogorgojo/go-home-activity/internal/validation"
 )
 
 type UserHandler struct {
@@ -63,9 +64,16 @@ func (h *UserHandler) GetOneByEmail(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req models.CreateUserRequest
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("Invalid Input error: %v", err)
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+		log.Printf("Invalid JSON Request: %v", r.Body)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if err := validation.Validate.Struct(req); err != nil {
+		log.Printf("Error with request: %v", err)
+		http.Error(w, validation.FormatValidationErrors(err), http.StatusBadRequest)
 		return
 	}
 
