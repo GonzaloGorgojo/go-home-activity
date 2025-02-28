@@ -15,6 +15,15 @@ type CreateUserRequest struct {
 	Type     string `json:"type" validate:"required,oneof=paid free"`
 }
 
+type LoginUserRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
 type ArgonParams struct {
 	Memory      uint32
 	Iterations  uint32

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gonzalogorgojo/go-home-activity/internal/auth"
 	"github.com/gonzalogorgojo/go-home-activity/internal/database"
 	"github.com/gonzalogorgojo/go-home-activity/internal/routes"
 	"github.com/gonzalogorgojo/go-home-activity/internal/users"
@@ -24,7 +25,11 @@ func main() {
 	userService := users.NewUserService(userRepo)
 	userHandler := users.NewUserHandler(userService)
 
-	routes.AddRoutes(mux, userHandler)
+	authRepo := auth.NewAuthRepository(db)
+	authService := auth.NewAuthService(authRepo)
+	authHandler := auth.NewAuthHandler(authService, userRepo)
+
+	routes.AddRoutes(mux, userHandler, authHandler)
 
 	s := &http.Server{
 		Addr:           ":8080",

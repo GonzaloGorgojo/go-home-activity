@@ -3,12 +3,16 @@ package routes
 import (
 	"net/http"
 
+	"github.com/gonzalogorgojo/go-home-activity/internal/auth"
 	"github.com/gonzalogorgojo/go-home-activity/internal/users"
 )
 
-func AddRoutes(mux *http.ServeMux, handler *users.UserHandler) {
+func AddRoutes(mux *http.ServeMux, userHandler *users.UserHandler, authhandler *auth.AuthHandler) {
 
-	mux.HandleFunc("GET /users", handler.GetAllUsers)
-	mux.HandleFunc("GET /user", handler.GetOneByEmail)
-	mux.HandleFunc("POST /user", handler.CreateUser)
+	mux.HandleFunc("GET /users", userHandler.GetAllUsers)
+	mux.HandleFunc("GET /user", userHandler.GetOneByEmail)
+	mux.HandleFunc("POST /user", userHandler.CreateUser)
+
+	mux.HandleFunc("POST /login", authhandler.Login)
+
 }

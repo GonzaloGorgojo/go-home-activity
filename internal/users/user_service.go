@@ -3,8 +3,8 @@ package users
 import (
 	"errors"
 
-	"github.com/gonzalogorgojo/go-home-activity/internal/auth"
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
+	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
 )
 
 type UserService struct {
@@ -29,7 +29,7 @@ func (s *UserService) CreateUser(user models.CreateUserRequest) (models.User, er
 		return models.User{}, errors.New("email already in use")
 	}
 
-	encodedHash, err := auth.GenerateFromPassword(user.Password)
+	encodedHash, err := utils.GenerateFromPassword(user.Password)
 	if err != nil {
 		return models.User{}, err
 	}
