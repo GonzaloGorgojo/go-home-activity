@@ -30,3 +30,7 @@ go.work.sum
 
 
 todo.txt
+# Ignore SQLite WAL and SHM files
+home_tasks.db
+home_tasks.db-wal
+home_tasks.db-shm
