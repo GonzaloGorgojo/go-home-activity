@@ -56,7 +56,7 @@ func (r *UserRepositoryImpl) CreateUser(user models.CreateUserRequest) (models.U
 	}
 
 	return models.User{
-		ID:    int(id),
+		ID:    uint(id),
 		Name:  user.Name,
 		Email: user.Email,
 		Type:  user.Type,

@@ -2,22 +2,20 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
-	"github.com/gonzalogorgojo/go-home-activity/internal/users"
-	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
 	"github.com/gonzalogorgojo/go-home-activity/internal/validation"
 )
 
 type AuthHandler struct {
-	service  *AuthService
-	userRepo users.UserRepository
+	service *AuthService
 }
 
-func NewAuthHandler(service *AuthService, userRepo users.UserRepository) *AuthHandler {
-	return &AuthHandler{service: service, userRepo: userRepo}
+func NewAuthHandler(service *AuthService) *AuthHandler {
+	return &AuthHandler{service: service}
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -35,29 +33,21 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existingUser, err := h.userRepo.GetOneByEmail(req.Email)
-	if existingUser.ID == 0 {
-		log.Printf("User not found: %v", req.Email)
-		http.Error(w, "User not found", http.StatusBadRequest)
-		return
-	}
-	if err != nil {
-		log.Printf("Error fetching user: %v", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	encodedHash, err := utils.ComparePasswordAndHash(req.Password, existingUser.Password)
-	if err != nil || !encodedHash {
-		log.Printf("Invalid password for user: %v", req.Email)
-		http.Error(w, "Invalid password", http.StatusBadRequest)
-		return
-	}
-
 	loginResponse, err := h.service.Login(req)
 	if err != nil {
 		log.Printf("Error during login: %v", err)
-		http.Error(w, "Could not create token", http.StatusInternalServerError)
+		statusCode := http.StatusInternalServerError
+		message := "Internal Server Error"
+
+		if errors.Is(err, ErrUserNotFound) {
+			statusCode = http.StatusBadRequest
+			message = "User not found"
+		} else if errors.Is(err, ErrInvalidPassword) {
+			statusCode = http.StatusBadRequest
+			message = "Invalid password"
+		}
+
+		http.Error(w, message, statusCode)
 		return
 	}
 

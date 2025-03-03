@@ -2,20 +2,40 @@ package auth
 
 import (
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
+	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
+
+	"github.com/gonzalogorgojo/go-home-activity/internal/users"
 )
 
 type AuthService struct {
-	authRepo AuthRepository
+	userRepo users.UserRepository
 }
 
-func NewAuthService(authRepo AuthRepository) *AuthService {
-	return &AuthService{authRepo: authRepo}
+func NewAuthService(userRepo users.UserRepository) *AuthService {
+	return &AuthService{userRepo: userRepo}
 }
 
-func (s *AuthService) Login(loginReq models.LoginUserRequest) (models.LoginResponse, error) {
-	loginResponse, err := s.authRepo.Login(loginReq)
+func (s *AuthService) Login(req models.LoginUserRequest) (*models.LoginResponse, error) {
+
+	existingUser, err := s.userRepo.GetOneByEmail(req.Email)
 	if err != nil {
-		return models.LoginResponse{}, err
+		return nil, err
 	}
-	return loginResponse, nil
+	if existingUser.ID == 0 {
+		return nil, ErrUserNotFound
+	}
+
+	validPassword, err := utils.ComparePasswordAndHash(req.Password, existingUser.Password)
+	if err != nil || !validPassword {
+		return nil, ErrInvalidPassword
+	}
+
+	token, err := utils.GenerateToken(&existingUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.LoginResponse{
+		Token: token,
+	}, nil
 }
