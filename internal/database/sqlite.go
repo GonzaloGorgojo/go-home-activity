@@ -3,12 +3,13 @@ package database
 import (
 	"database/sql"
 	"log"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func InitDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "file:home_tasks.db?cache=shared&mode=rwc&_journal_mode=WAL")
+	db, err := sql.Open("sqlite3", os.Getenv("DATABASE_OPEN"))
 	if err != nil {
 		return nil, err
 	}

@@ -8,9 +8,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 	"golang.org/x/crypto/argon2"
 )
+
+type ArgonParams struct {
+	Memory      uint32
+	Iterations  uint32
+	Parallelism uint8
+	SaltLength  uint32
+	KeyLength   uint32
+}
 
 func generateRandomBytes(n uint32) ([]byte, error) {
 	b := make([]byte, n)
@@ -24,7 +31,7 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 
 func GenerateFromPassword(password string) (encodedHash string, err error) {
 
-	p := &models.ArgonParams{
+	p := &ArgonParams{
 		Memory:      64 * 1024,
 		Iterations:  3,
 		Parallelism: 1,
@@ -61,7 +68,7 @@ func ComparePasswordAndHash(password, encodedHash string) (match bool, err error
 	return false, nil
 }
 
-func decodeHash(encodedHash string) (p *models.ArgonParams, salt, hash []byte, err error) {
+func decodeHash(encodedHash string) (p *ArgonParams, salt, hash []byte, err error) {
 	vals := strings.Split(encodedHash, "$")
 	if len(vals) != 6 {
 		return nil, nil, nil, errors.New("the encoded hash is not in the correct format")
@@ -76,7 +83,7 @@ func decodeHash(encodedHash string) (p *models.ArgonParams, salt, hash []byte, e
 		return nil, nil, nil, errors.New("incompatible version of argon2")
 	}
 
-	p = &models.ArgonParams{}
+	p = &ArgonParams{}
 	_, err = fmt.Sscanf(vals[3], "m=%d,t=%d,p=%d", &p.Memory, &p.Iterations, &p.Parallelism)
 	if err != nil {
 		return nil, nil, nil, err

@@ -9,9 +9,14 @@ import (
 	"github.com/gonzalogorgojo/go-home-activity/internal/database"
 	"github.com/gonzalogorgojo/go-home-activity/internal/routes"
 	"github.com/gonzalogorgojo/go-home-activity/internal/users"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	db, err := database.InitDB()
 	if err != nil {
@@ -25,9 +30,9 @@ func main() {
 	userService := users.NewUserService(userRepo)
 	userHandler := users.NewUserHandler(userService)
 
-	authRepo := auth.NewAuthRepository(db)
-	authService := auth.NewAuthService(authRepo)
-	authHandler := auth.NewAuthHandler(authService, userRepo)
+	// authRepo := auth.NewAuthRepository(db)
+	authService := auth.NewAuthService(userRepo)
+	authHandler := auth.NewAuthHandler(authService)
 
 	routes.AddRoutes(mux, userHandler, authHandler)
 
