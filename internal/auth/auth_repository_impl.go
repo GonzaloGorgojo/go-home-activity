@@ -8,16 +8,16 @@ import (
 )
 
 type AuthRepositoryImpl struct {
-	Db *sql.DB
+	DB *sql.DB
 }
 
 func NewAuthRepositoryImpl(db *sql.DB) *AuthRepositoryImpl {
-	return &AuthRepositoryImpl{Db: db}
+	return &AuthRepositoryImpl{DB: db}
 }
 
 func (r *AuthRepositoryImpl) getUserByEmail(email string) (*models.User, error) {
 	u := &models.User{}
-	err := r.Db.QueryRow("SELECT * FROM users WHERE Email = ?", email).Scan(&u.ID, &u.Name, &u.Email, &u.Password, &u.Type)
+	err := r.DB.QueryRow("SELECT * FROM users WHERE Email = ?", email).Scan(&u.ID, &u.Name, &u.Email, &u.Password, &u.Type)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -43,7 +43,7 @@ func (r *AuthRepositoryImpl) SignUp(req models.SignUpRequest) (*models.User, err
 		return nil, utils.ErrEmailAlreadyInUse
 	}
 
-	_, err = r.Db.Exec("INSERT INTO users (name, email, password, type) VALUES (?, ?, ?, ?)",
+	_, err = r.DB.Exec("INSERT INTO users (name, email, password, type) VALUES (?, ?, ?, ?)",
 		req.Name, req.Email, req.Password, "free")
 	if err != nil {
 		return nil, err

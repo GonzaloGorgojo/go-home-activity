@@ -7,15 +7,15 @@ import (
 )
 
 type UserRepositoryImpl struct {
-	Db *sql.DB
+	DB *sql.DB
 }
 
 func NewUserRepositoryImpl(db *sql.DB) *UserRepositoryImpl {
-	return &UserRepositoryImpl{Db: db}
+	return &UserRepositoryImpl{DB: db}
 }
 
 func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
-	rows, err := r.Db.Query("SELECT * FROM users")
+	rows, err := r.DB.Query("SELECT * FROM users")
 	if err != nil {
 		return nil, err
 	}
