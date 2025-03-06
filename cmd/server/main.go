@@ -26,12 +26,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	userRepo := users.NewUserRepository(db)
+	userRepo := users.NewUserRepositoryImpl(db)
 	userService := users.NewUserService(userRepo)
 	userHandler := users.NewUserHandler(userService)
 
-	// authRepo := auth.NewAuthRepository(db)
-	authService := auth.NewAuthService(userRepo)
+	authRepo := auth.NewAuthRepositoryImpl(db)
+	authService := auth.NewAuthService(authRepo)
 	authHandler := auth.NewAuthHandler(authService)
 
 	routes.AddRoutes(mux, userHandler, authHandler)

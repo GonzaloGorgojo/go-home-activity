@@ -11,8 +11,7 @@ import (
 func AddRoutes(mux *http.ServeMux, userHandler *users.UserHandler, authhandler *auth.AuthHandler) {
 
 	mux.HandleFunc("POST /login", authhandler.Login)
+	mux.HandleFunc("POST /signup", authhandler.SignUp)
 
 	mux.Handle("GET /users", middleware.AuthMiddleware(http.HandlerFunc(userHandler.GetAllUsers)))
-	mux.Handle("GET /user", middleware.AuthMiddleware(http.HandlerFunc(userHandler.GetOneByEmail)))
-	mux.Handle("POST /user", middleware.AuthMiddleware(http.HandlerFunc(userHandler.CreateUser)))
 }
