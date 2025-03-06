@@ -8,6 +8,8 @@ import (
 	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
 )
 
+type userContextKey struct{}
+
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
@@ -24,7 +26,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		tokenString := parts[1]
 
-		claims, err := utils.ValidateToken(tokenString)
+		claims, err := utils.ValidateJWTToken(tokenString)
 		if err != nil {
 			statusCode := http.StatusUnauthorized
 			message := "Invalid token"
@@ -37,8 +39,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user", claims)
+		ctx := context.WithValue(r.Context(), userContextKey{}, claims)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func GetClaimsFromContext(ctx context.Context) (*utils.Claims, bool) {
+	claims, ok := ctx.Value(userContextKey{}).(*utils.Claims)
+	return claims, ok
 }

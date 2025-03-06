@@ -23,7 +23,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(user *models.User) (string, error) {
+func GenerateJWTToken(user *models.User) (string, error) {
 	expirationTime := time.Now().Add(time.Duration(TokenDuration) * time.Minute)
 
 	claims := &Claims{
@@ -48,7 +48,7 @@ func GenerateToken(user *models.User) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(tokenString string) (*Claims, error) {
+func ValidateJWTToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&Claims{},

@@ -1,17 +1,20 @@
 package models
 
-type CreateUserRequest struct {
+type SignUpRequest struct {
 	Name     string `json:"name" validate:"required,min=3"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8"`
-	Type     string `json:"type" validate:"required,oneof=paid free"`
 }
 
-type LoginUserRequest struct {
+type SignUpResponse struct {
+	Token string `json:"token"`
+}
+
+type LogInRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
 
-type LoginResponse struct {
+type LogInResponse struct {
 	Token string `json:"token"`
 }

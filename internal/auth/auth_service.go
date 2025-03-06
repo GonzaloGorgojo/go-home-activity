@@ -3,39 +3,59 @@ package auth
 import (
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
-
-	"github.com/gonzalogorgojo/go-home-activity/internal/users"
 )
 
 type AuthService struct {
-	userRepo users.UserRepository
+	authRepo AuthRepository
 }
 
-func NewAuthService(userRepo users.UserRepository) *AuthService {
-	return &AuthService{userRepo: userRepo}
+func NewAuthService(authRepo AuthRepository) *AuthService {
+	return &AuthService{authRepo: authRepo}
 }
 
-func (s *AuthService) Login(req models.LoginUserRequest) (*models.LoginResponse, error) {
+func (s *AuthService) LogIn(req models.LogInRequest) (*models.LogInResponse, error) {
 
-	existingUser, err := s.userRepo.GetOneByEmail(req.Email)
+	existingUser, err := s.authRepo.LogIn(req)
 	if err != nil {
 		return nil, err
 	}
-	if existingUser.ID == 0 {
-		return nil, ErrUserNotFound
+	if existingUser == nil {
+		return nil, utils.ErrUserNotFound
 	}
 
 	validPassword, err := utils.ComparePasswordAndHash(req.Password, existingUser.Password)
 	if err != nil || !validPassword {
-		return nil, ErrInvalidPassword
+		return nil, utils.ErrInvalidPassword
 	}
 
-	token, err := utils.GenerateToken(&existingUser)
+	token, err := utils.GenerateJWTToken(existingUser)
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.LoginResponse{
+	return &models.LogInResponse{
+		Token: token,
+	}, nil
+}
+
+func (s *AuthService) SignUp(req models.SignUpRequest) (*models.SignUpResponse, error) {
+	hashedPass, err := utils.GenerateFromPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+	req.Password = hashedPass
+
+	newUser, err := s.authRepo.SignUp(req)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := utils.GenerateJWTToken(newUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.SignUpResponse{
 		Token: token,
 	}, nil
 }
