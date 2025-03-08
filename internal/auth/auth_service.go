@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"log"
+
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
 )
@@ -28,7 +30,7 @@ func (s *AuthService) LogIn(req models.LogInRequest) (*models.LogInResponse, err
 		return nil, utils.ErrInvalidPassword
 	}
 
-	token, err := utils.GenerateJWTToken(existingUser)
+	token, err := utils.GenerateJWTToken(existingUser, utils.ShortToken)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +41,7 @@ func (s *AuthService) LogIn(req models.LogInRequest) (*models.LogInResponse, err
 }
 
 func (s *AuthService) SignUp(req models.SignUpRequest) (*models.SignUpResponse, error) {
-	hashedPass, err := utils.GenerateFromPassword(req.Password)
+	hashedPass, err := utils.GenerateHashFromPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +52,19 @@ func (s *AuthService) SignUp(req models.SignUpRequest) (*models.SignUpResponse, 
 		return nil, err
 	}
 
-	token, err := utils.GenerateJWTToken(newUser)
+	shotLivedToken, err := utils.GenerateJWTToken(newUser, utils.ShortToken)
 	if err != nil {
 		return nil, err
 	}
 
+	refreshToken, err := utils.GenerateJWTToken(newUser, utils.RefreshTokenExpiry)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("sad %v", refreshToken)
+
 	return &models.SignUpResponse{
-		Token: token,
+		Token: shotLivedToken,
 	}, nil
 }

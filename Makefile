@@ -13,7 +13,7 @@ run:
 	@echo "..."
 	goose up && go run ./cmd/server/
 
-## create-migration: creates a new migration file.
+## create-migration MIGRATION_NAME=<name>: creates a new migration file.
 .PHONY: create-migration
 create-migration:
 	goose -s create $(MIGRATION_NAME) sql
