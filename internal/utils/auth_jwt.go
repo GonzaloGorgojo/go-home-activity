@@ -2,20 +2,12 @@ package utils
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/gonzalogorgojo/go-home-activity/internal/config"
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 )
-
-var (
-	ErrInvalidToken = errors.New("invalid token")
-	ErrExpiredToken = errors.New("token has expired")
-)
-
-var JWTSecretKey = os.Getenv("JWT_SECRET_KEY")
-var TokenDuration = 15
 
 type Claims struct {
 	UserID uint   `json:"user_id"`
@@ -23,24 +15,28 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateJWTToken(user *models.User) (string, error) {
-	expirationTime := time.Now().Add(time.Duration(TokenDuration) * time.Minute)
+func GenerateJWTToken(user *models.User, expirationTime time.Duration) (string, error) {
+
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return "", err
+	}
 
 	claims := &Claims{
 		UserID: user.ID,
 		Email:  user.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    os.Getenv("JWT_ISSUER"),
+			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(expirationTime)),
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+			NotBefore: jwt.NewNumericDate(time.Now().UTC()),
+			Issuer:    cfg.JWTIssuer,
 			Subject:   user.Email,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(JWTSecretKey))
+	tokenString, err := token.SignedString([]byte(cfg.JWTSecretKey))
 	if err != nil {
 		return "", err
 	}
@@ -49,6 +45,11 @@ func GenerateJWTToken(user *models.User) (string, error) {
 }
 
 func ValidateJWTToken(tokenString string) (*Claims, error) {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		return nil, err
+	}
+
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&Claims{},
@@ -56,7 +57,7 @@ func ValidateJWTToken(tokenString string) (*Claims, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, ErrInvalidToken
 			}
-			return []byte(JWTSecretKey), nil
+			return []byte(cfg.JWTSecretKey), nil
 		},
 	)
 

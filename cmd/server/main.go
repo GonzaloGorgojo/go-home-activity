@@ -6,19 +6,20 @@ import (
 	"time"
 
 	"github.com/gonzalogorgojo/go-home-activity/internal/auth"
+	"github.com/gonzalogorgojo/go-home-activity/internal/config"
 	"github.com/gonzalogorgojo/go-home-activity/internal/database"
 	"github.com/gonzalogorgojo/go-home-activity/internal/routes"
 	"github.com/gonzalogorgojo/go-home-activity/internal/users"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load()
+
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal(err)
 	}
 
-	db, err := database.InitDB()
+	db, err := database.InitDB(cfg.DBConnection)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,14 +38,14 @@ func main() {
 	routes.AddRoutes(mux, userHandler, authHandler)
 
 	s := &http.Server{
-		Addr:           ":8080",
+		Addr:           ":" + cfg.Port,
 		Handler:        mux,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   20 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("Server running on port :8080")
+	log.Printf("Starting server on port %s...", cfg.Port)
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed: %v", err)
 	}

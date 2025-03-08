@@ -8,4 +8,6 @@ var (
 	ErrTokenGeneration   = errors.New("failed to generate token")
 	ErrInternalServer    = errors.New("internal server error")
 	ErrEmailAlreadyInUse = errors.New("email already in use")
+	ErrInvalidToken      = errors.New("invalid token")
+	ErrExpiredToken      = errors.New("token has expired")
 )

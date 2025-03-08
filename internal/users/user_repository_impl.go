@@ -15,7 +15,7 @@ func NewUserRepositoryImpl(db *sql.DB) *UserRepositoryImpl {
 }
 
 func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
-	rows, err := r.DB.Query("SELECT * FROM users")
+	rows, err := r.DB.Query("SELECT * FROM User")
 	if err != nil {
 		return nil, err
 	}

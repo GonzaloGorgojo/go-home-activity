@@ -29,7 +29,7 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 	return b, nil
 }
 
-func GenerateFromPassword(password string) (encodedHash string, err error) {
+func GenerateHashFromPassword(password string) (encodedHash string, err error) {
 
 	p := &ArgonParams{
 		Memory:      64 * 1024,
