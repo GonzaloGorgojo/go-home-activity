@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"log"
 
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 	"github.com/gonzalogorgojo/go-home-activity/internal/utils"
@@ -41,6 +42,7 @@ func (s *AuthService) LogIn(req models.LogInRequest) (*models.LogInResponse, err
 	}
 
 	err = s.authRepo.SaveRefreshToken(existingUser.Email, longLivedToken)
+
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +70,12 @@ func (s *AuthService) SignUp(req models.SignUpRequest) (*models.SignUpResponse, 
 	req.Password = hashedPass
 
 	err = s.authRepo.SignUp(req, refreshToken)
+
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("sad %v", refreshToken)
 
 	return &models.SignUpResponse{
 		Token: shotLivedToken,
