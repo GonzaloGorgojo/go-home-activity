@@ -15,7 +15,7 @@ func NewUserRepositoryImpl(db *sql.DB) *UserRepositoryImpl {
 }
 
 func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
-	rows, err := r.DB.Query("SELECT * FROM User")
+	rows, err := r.DB.Query("SELECT Name, Email, Type FROM User")
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *UserRepositoryImpl) GetAllUsers() ([]models.User, error) {
 	var users []models.User
 	for rows.Next() {
 		var u models.User
-		if err := rows.Scan(&u.ID, &u.Name, &u.Email, &u.Password, &u.Type); err != nil {
+		if err := rows.Scan(&u.Name, &u.Email, &u.Type); err != nil {
 			return nil, err
 		}
 		users = append(users, u)

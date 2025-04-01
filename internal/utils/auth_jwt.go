@@ -6,16 +6,14 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/gonzalogorgojo/go-home-activity/internal/config"
-	"github.com/gonzalogorgojo/go-home-activity/internal/models"
 )
 
 type Claims struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
+	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWTToken(user *models.User, expirationTime time.Duration) (string, error) {
+func GenerateJWTToken(userEmail string, expirationTime time.Duration) (string, error) {
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -23,14 +21,13 @@ func GenerateJWTToken(user *models.User, expirationTime time.Duration) (string, 
 	}
 
 	claims := &Claims{
-		UserID: user.ID,
-		Email:  user.Email,
+		Email: userEmail,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(expirationTime)),
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 			NotBefore: jwt.NewNumericDate(time.Now().UTC()),
 			Issuer:    cfg.JWTIssuer,
-			Subject:   user.Email,
+			Subject:   userEmail,
 		},
 	}
 
@@ -63,7 +60,7 @@ func ValidateJWTToken(tokenString string) (*Claims, error) {
 
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return nil, ErrExpiredToken
+			return token.Claims.(*Claims), ErrExpiredToken
 		}
 		return nil, err
 	}

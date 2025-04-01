@@ -89,5 +89,5 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(signUpResponse)
-	log.Printf("User %v created correctly.", req.Email)
+	log.Printf("User %v created correctly with refresh token.", req.Email)
 }
