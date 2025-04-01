@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"log"
 
 	"github.com/gonzalogorgojo/go-home-activity/internal/models"
@@ -30,34 +31,46 @@ func (s *AuthService) LogIn(req models.LogInRequest) (*models.LogInResponse, err
 		return nil, utils.ErrInvalidPassword
 	}
 
-	token, err := utils.GenerateJWTToken(existingUser, utils.ShortToken)
+	shotLivedToken, err := utils.GenerateJWTToken(existingUser.Email, utils.ShortTokenExpiry)
+	if err != nil {
+		return nil, err
+	}
+
+	longLivedToken, err := utils.GenerateJWTToken(existingUser.Email, utils.RefreshTokenExpiry)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.authRepo.SaveRefreshToken(existingUser.Email, longLivedToken)
+
 	if err != nil {
 		return nil, err
 	}
 
 	return &models.LogInResponse{
-		Token: token,
+		Token: shotLivedToken,
 	}, nil
 }
 
 func (s *AuthService) SignUp(req models.SignUpRequest) (*models.SignUpResponse, error) {
+	shotLivedToken, err := utils.GenerateJWTToken(req.Email, utils.ShortTokenExpiry)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := utils.GenerateJWTToken(req.Email, utils.RefreshTokenExpiry)
+	if err != nil {
+		return nil, err
+	}
+
 	hashedPass, err := utils.GenerateHashFromPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
 	req.Password = hashedPass
 
-	newUser, err := s.authRepo.SignUp(req)
-	if err != nil {
-		return nil, err
-	}
+	err = s.authRepo.SignUp(req, refreshToken)
 
-	shotLivedToken, err := utils.GenerateJWTToken(newUser, utils.ShortToken)
-	if err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := utils.GenerateJWTToken(newUser, utils.RefreshTokenExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -67,4 +80,22 @@ func (s *AuthService) SignUp(req models.SignUpRequest) (*models.SignUpResponse, 
 	return &models.SignUpResponse{
 		Token: shotLivedToken,
 	}, nil
+}
+
+func (s *AuthService) SearchRefreshToken(email string) (*string, error) {
+	storedHash, err := s.authRepo.SearchRefreshToken(email)
+	if err != nil || storedHash == nil {
+		return nil, errors.New("refresh token not found")
+	}
+
+	return storedHash, nil
+}
+
+func (s *AuthService) SaveRefreshToken(email string, token string) error {
+	err := s.authRepo.SaveRefreshToken(email, token)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

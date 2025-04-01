@@ -34,9 +34,9 @@ func main() {
 	authRepo := auth.NewAuthRepositoryImpl(db)
 	authService := auth.NewAuthService(authRepo)
 	authHandler := auth.NewAuthHandler(authService)
+	authMiddleware := auth.NewAuthMiddleware(authService)
 
-	routes.AddRoutes(mux, userHandler, authHandler)
-
+	routes.AddRoutes(mux, userHandler, authHandler, authMiddleware)
 	s := &http.Server{
 		Addr:           ":" + cfg.Port,
 		Handler:        mux,

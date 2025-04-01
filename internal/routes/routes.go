@@ -8,7 +8,7 @@ import (
 	"github.com/gonzalogorgojo/go-home-activity/internal/users"
 )
 
-func AddRoutes(mux *http.ServeMux, userHandler *users.UserHandler, authhandler *auth.AuthHandler) {
+func AddRoutes(mux *http.ServeMux, userHandler *users.UserHandler, authhandler *auth.AuthHandler, authMiddleware *auth.AuthMiddleware) {
 
 	mux.HandleFunc("POST /login", authhandler.Login)
 	mux.HandleFunc("POST /signup", authhandler.SignUp)

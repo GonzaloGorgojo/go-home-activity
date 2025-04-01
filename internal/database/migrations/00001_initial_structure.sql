@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS User (
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL UNIQUE,
     "password" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
+    "updatedAt" DATETIME NULL,
     "type" TEXT NOT NULL CHECK(type IN ('paid', 'free'))
 );
 -- +goose StatementEnd

@@ -1,3 +1,11 @@
+<h2>Auth Flow</h2>
+
+User SignUP and get a short lived jwt as response and a longlived jwt created that is stored in db.
+User Login and get the short lived token as response and long lived refreshed.
+Middleware for protected routes check for short jwt, in case is expired search for long lived, in case this is expired it send you to login,
+in case this is not expired it also refresh the token.
+
+
 Project folder structure:
 
 ```
@@ -52,3 +60,4 @@ Project folder structure:
 ├── go.sum                  # Go checksum file
 └── README.md               # Project documentation
 ```
+
