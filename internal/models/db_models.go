@@ -5,19 +5,20 @@ import (
 )
 
 type User struct {
-	ID        uint         `json:"-"`
+	ID        int64        `json:"-"`
 	Name      string       `json:"name"`
 	Email     string       `json:"email"`
 	Password  string       `json:"-"`
 	Type      string       `json:"type"`
+	Status    string       `json:"status"`
 	CreatedAt string       `json:"-"`
 	UpdatedAt sql.NullTime `json:"-"`
 }
 
 type UserToken struct {
-	ID           uint         `json:"id"`
+	ID           int64        `json:"id"`
 	RefreshToken string       `json:"token"`
-	UserEmail    string       `json:"email"`
+	UserID       string       `json:"userID"`
 	CreatedAt    string       `json:"-"`
 	UpdatedAt    sql.NullTime `json:"-"`
 }

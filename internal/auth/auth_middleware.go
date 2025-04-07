@@ -38,42 +38,55 @@ func (m *AuthMiddleware) AuthMiddleware(next http.Handler) http.Handler {
 
 		if err != nil {
 			if err == utils.ErrExpiredToken {
-				refreshToken, err := m.authService.SearchRefreshToken(claims.Email)
-				if err != nil || refreshToken == nil {
-					http.Error(w, "Refresh token not found", http.StatusUnauthorized)
+				refreshToken, err := m.authService.SearchRefreshToken(claims.UserID)
+				if err != nil {
+					log.Printf("Error searching token: %v", err)
+					http.Error(w, "Unauthorized", http.StatusUnauthorized)
+					return
+
+				}
+				if refreshToken == nil {
+					log.Printf("Refresh token not found for user %v", claims.UserID)
+					http.Error(w, "Unauthorized", http.StatusUnauthorized)
 					return
 				}
-				log.Printf("Refresh Token was found for user %v", claims.Email)
+				log.Printf("Refresh Token was found for user %v", claims.UserID)
 
 				claims, err = utils.ValidateJWTToken(*refreshToken)
 				if err != nil {
 					if err == utils.ErrExpiredToken {
-						http.Error(w, "Refresh token was also expired", http.StatusUnauthorized)
+						log.Printf("Refresh token was also expired for user %v", claims.UserID)
+						http.Error(w, "Unauthorized", http.StatusUnauthorized)
 					} else {
+						log.Printf("Invalid refresh token for user %v", claims.UserID)
 						http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
 					}
 					return
 				}
-				longNewToken, err := utils.GenerateJWTToken(claims.Email, utils.RefreshTokenExpiry)
+				longNewToken, err := utils.GenerateJWTToken(claims.UserID, utils.RefreshTokenExpiry)
 				if err != nil {
-					http.Error(w, "Failed to generate new long lived token", http.StatusInternalServerError)
+					log.Printf("Failed to generate new long lived token for user %v", claims.UserID)
+					http.Error(w, "Unauthorized", http.StatusInternalServerError)
 					return
 				}
-				err = m.authService.SaveRefreshToken(claims.Email, longNewToken)
+				err = m.authService.UpdateRefreshToken(claims.UserID, longNewToken)
 				if err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				log.Printf("Updated long lived token for user %v", claims.UserID)
 
-				shortNewToken, err := utils.GenerateJWTToken(claims.Email, utils.ShortTokenExpiry)
+				shortNewToken, err := utils.GenerateJWTToken(claims.UserID, utils.ShortTokenExpiry)
 				if err != nil {
-					http.Error(w, "Failed to generate new short lived token", http.StatusInternalServerError)
+					log.Printf("Failed to generate new short lived token for user %v", claims.UserID)
+					http.Error(w, "Unauthorized", http.StatusInternalServerError)
 					return
 				}
 				r.Header.Set("Authorization", "Bearer "+shortNewToken)
 				w.Header().Set("Authorization", "Bearer "+shortNewToken)
 			} else {
-				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				log.Printf("Failed to generate new short lived token for user %v", claims.UserID)
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
 		}
