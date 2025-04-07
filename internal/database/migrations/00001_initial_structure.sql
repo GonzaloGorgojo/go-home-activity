@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS User (
     "password" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
     "updatedAt" DATETIME NULL,
-    "type" TEXT NOT NULL CHECK(type IN ('paid', 'free'))
+    "type" TEXT NOT NULL CHECK(type IN ('paid', 'free')),
+    "status" TEXT NOT NULL CHECK(status IN ('active', 'suspended')) DEFAULT ('active')
 );
 -- +goose StatementEnd
 

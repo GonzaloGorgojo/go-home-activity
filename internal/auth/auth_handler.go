@@ -46,6 +46,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		} else if errors.Is(err, utils.ErrInvalidPassword) {
 			statusCode = http.StatusBadRequest
 			message = "Invalid password"
+		} else if errors.Is(err, utils.ErrSuspendedUser) {
+			statusCode = http.StatusBadRequest
+			message = "User is Suspended"
+		} else if errors.Is(err, utils.ErrNoRowsUpdated) {
+			statusCode = http.StatusBadRequest
+			message = "Comunicate with support"
 		}
 
 		http.Error(w, message, statusCode)
@@ -81,6 +87,9 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, utils.ErrEmailAlreadyInUse) {
 			statusCode = http.StatusBadRequest
 			message = "Email already registered"
+		} else if errors.Is(err, utils.ErrSuspendedUser) {
+			statusCode = http.StatusBadRequest
+			message = "Email already exist and User is suspended"
 		}
 
 		http.Error(w, message, statusCode)

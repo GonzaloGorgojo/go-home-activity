@@ -9,11 +9,11 @@ import (
 )
 
 type Claims struct {
-	Email string `json:"email"`
+	UserID int64 `json:"userID"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWTToken(userEmail string, expirationTime time.Duration) (string, error) {
+func GenerateJWTToken(userID int64, expirationTime time.Duration) (string, error) {
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
@@ -21,13 +21,12 @@ func GenerateJWTToken(userEmail string, expirationTime time.Duration) (string, e
 	}
 
 	claims := &Claims{
-		Email: userEmail,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(expirationTime)),
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 			NotBefore: jwt.NewNumericDate(time.Now().UTC()),
 			Issuer:    cfg.JWTIssuer,
-			Subject:   userEmail,
 		},
 	}
 

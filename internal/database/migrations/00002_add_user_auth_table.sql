@@ -3,10 +3,10 @@
 CREATE TABLE IF NOT EXISTS UserToken (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "refreshToken" TEXT NOT NULL,
-    "userEmail" TEXT NOT NULL UNIQUE,
+    "userID" INTEGER NOT NULL UNIQUE,
     "createdAt" DATETIME NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
     "updatedAt" DATETIME NULL,
-    FOREIGN KEY ("userEmail") REFERENCES User(email) ON DELETE CASCADE
+    FOREIGN KEY ("userID") REFERENCES User(id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
 
